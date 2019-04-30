@@ -1,4 +1,9 @@
+package main
+import(
+	//"fmt"
+)
 
-type block struct{
-	
+type Block struct{
+
+	message string
 }
