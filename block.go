@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"bytes"
 	"crypto/sha256"
 	"time"
@@ -42,4 +42,5 @@ func (b *Block) SetHash() {
 	blockbytes := bytes.Join([][]byte{b.bhead.prevhash,[]byte(b.message),time}, []byte{})
 	h := sha256.Sum256(blockbytes)
 	b.bhead.hash = h[:]
+	fmt.Printf("sethash=%x\n",b.bhead.hash)
 }
