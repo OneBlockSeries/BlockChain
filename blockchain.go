@@ -13,7 +13,9 @@ type Blockchain struct{
 func StartBlockChain(message string) (bl *Blockchain){
 
 	fmt.Printf("message=%s\n",message)
-	b:=&Block{message}
+	prevhash:=[]byte{}
+	b:=CreatBlock(message,prevhash)
+	
 	return &Blockchain{[]*Block{b}}
 }
 
