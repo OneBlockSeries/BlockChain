@@ -5,3 +5,5 @@
 1. 很简单的blockchain
 2. 完善block结构体,在block结构体中增加BlockHead{time,prevhash,hash}结构体，增加block可以哈希功能
 3. 第一个区块，增加创世块GenesisBlock
+4. 增加AddBlockToChain函数
+5. 修改AddBlockToChain函数，更简单点

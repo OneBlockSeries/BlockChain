@@ -15,16 +15,16 @@ type BlockHead struct {
 
 }
 type Block struct {
-	message string
+	message Transaction  //交易
 	bhead   BlockHead
 }
 
-func CreatBlock(mess string, prevh []byte) (bl *Block) {
+func CreatBlock(tran Transaction, prevh []byte) (bl *Block) {
 
 	head := BlockHead{time.Now().Unix(), prevh, []byte{}}
 
 	bl = &Block{
-		message: mess,
+		message: tran,
 
 		bhead:BlockHead{
 			timestamp: head.timestamp,
@@ -39,7 +39,9 @@ func (b *Block) SetHash() {
 
 	//h:=sha256(head+message)
 	time := []byte(strconv.FormatInt(b.bhead.timestamp, 10))
-	blockbytes := bytes.Join([][]byte{b.bhead.prevhash,[]byte(b.message),time}, []byte{})
+	
+	transactbyte:=[]byte{}
+	blockbytes := bytes.Join([][]byte{b.bhead.prevhash,transactbyte,time}, []byte{})
 	h := sha256.Sum256(blockbytes)
 	b.bhead.hash = h[:]
 	fmt.Printf("sethash=%x\n",b.bhead.hash)
