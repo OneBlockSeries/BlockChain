@@ -7,5 +7,6 @@
 3. 第一个区块，增加创世块GenesisBlock
 4. 增加AddBlockToChain函数
 5. 修改AddBlockToChain函数，更简单点
-6. 一切为了交易服务，来分解交易，交易分两部分，钱从那里来：挖矿奖励来，暂不考虑交易手续费。钱到哪里去：转账功能
-   而所有的钱又可以简单化为两个结构体，输入和输出，输入是正向的，输出是负向的。输出引用输入
+6. 增加Input输入， Output输出， Transaction结构体，代表一次交易。block中存储着很多Transaction,
+7. 增加coinbase交易，是个特殊的Transaction,,是挖矿奖励，是币的来源
+8. 添加sendcoin(from,to string,mount int )也就是转账功能
