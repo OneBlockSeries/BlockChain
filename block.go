@@ -15,16 +15,16 @@ type BlockHead struct {
 
 }
 type Block struct {
-	message Transaction  //交易
+	TransactionS []Transaction  //交易
 	bhead   BlockHead
 }
 
-func CreatBlock(tran Transaction, prevh []byte) (bl *Block) {
+func CreatBlock(trans []Transaction, prevh []byte) (bl *Block) {
 
 	head := BlockHead{time.Now().Unix(), prevh, []byte{}}
 
 	bl = &Block{
-		message: tran,
+		TransactionS: trans,
 
 		bhead:BlockHead{
 			timestamp: head.timestamp,

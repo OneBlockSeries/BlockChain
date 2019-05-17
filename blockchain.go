@@ -22,7 +22,7 @@ func (bl *Blockchain) Runing(){
 	fmt.Printf("blockchain running\n")
 	/*------加入到区块链-------*/
 	tr:=Transaction{}
-	bl.AddBlockToChain(tr)
+	bl.AddBlockToChain([]Transaction{tr})
 
 	/*-------把blocks里的区块打印出来-----------*/
 	for idx,value:=range bl.blocks{
@@ -32,11 +32,18 @@ func (bl *Blockchain) Runing(){
 func GenesisBlock() *Block{
 	//message:="Genesis block"
 	GenesTransaction:=Transaction{}
-	Genesisblock:=CreatBlock(GenesTransaction,[]byte{})  //没有prevhash 第一个块，当然没有前向块的哈希
+	Genesisblock:=CreatBlock([]Transaction{GenesTransaction},[]byte{})  //没有prevhash 第一个块，当然没有前向块的哈希
 	return Genesisblock
 }
-func(bl *Blockchain)AddBlockToChain( message Transaction){
+func(bl *Blockchain)AddBlockToChain(trans  []Transaction){
 	
-	block:=CreatBlock(message,bl.blocks[len(bl.blocks)-1].bhead.hash)
+	block:=CreatBlock(trans,bl.blocks[len(bl.blocks)-1].bhead.hash)
 	bl.blocks=append(bl.blocks,block)
+}
+
+func (bl* Blockchain)SendCoin(from, to string,mount int){
+
+	//封装成transaction
+
+	fmt.Printf("sendcoin from=%s,to=%s,mount=%d\n",from,to,mount);
 }
