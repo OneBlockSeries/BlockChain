@@ -1,17 +1,13 @@
 package main
 
-import(	
-	
-	
-)
+import ()
 
+func main() {
 
-func main(){
-	
-	bl:=StartBlockChain()
-	
+	bl := StartBlockChain()
+
 	bl.Runing()
-	
-	bl.SendCoin("aa","bb",2)
-	bl.SendCoin("cc","dd",4)
+
+	bl.SendCoin("aa", "bb", 2)
+	bl.SendCoin("cc", "dd", 4)
 }
