@@ -42,6 +42,10 @@ func (bl *Blockchain) AddBlockToChain(trans []*Transaction) {
 func (bl *Blockchain) SendCoin(from, to string, mount int) {
 
 	//封装成transaction
-
+	var ins []Input
+	var outs []Output
+	
+	tr:=Transaction{nil,ins,outs}
+	tr.SetId()
 	fmt.Printf("sendcoin from=%s,to=%s,mount=%d\n", from, to, mount)
 }
