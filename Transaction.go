@@ -15,13 +15,15 @@ const rewardcoin = 50 //奖励钱
 type Input struct {
 	Id  []byte		//对应之前所在Transaction Id
 	OutId int 		//具体哪个输出，所对应的Transaction有多个输出，比如找零,具体哪个
-	unlock string 	//证明你可以用这笔钱，也就是证明这是你的钱 ，数字签名理论
+	//unlock string 	//证明你可以用这笔钱，也就是证明这是你的钱 ，数字签名理论
+	Pubkey  []byte		//没有哈希的pubkey ,
+	Signature []byte	//整个交易的一个签名
 }
 
 //输出  币存储地方
 type Output struct {
 	Value int
-	lock   string //比特币里是有锁定脚本
+	Pubkeyhash   []byte //哈希过的  RIPEMD16(SHA256(PubKey))
 }
 
 
