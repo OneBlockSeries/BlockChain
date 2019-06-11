@@ -39,13 +39,30 @@ func (bl *Blockchain) AddBlockToChain(trans []*Transaction) {
 	bl.blocks = append(bl.blocks, block)
 }
 
-func (bl *Blockchain) SendCoin(from, to string, mount int) {
+func (bl *Blockchain) SendCoin(from, to string, mount int) bool{
 
 	//封装成transaction
 	var ins []Input
 	var outs []Output
-	
+
+	//判断address是否合法
+	if IsTrueAddress(from)!=true||IsTrueAddress(to)!=true{
+		fmt.Printf("sendcoin  wrong address\n")
+		return false
+	}
+
+	//两步走 step1,从区块链中找from 找出所有的未花费的输出， step2，封装输入以找出来的输出填 当然得证明是自己的钱
+	//封装输出  不要忘记有找零情况
+
+	enoughOutput,findmount:=bl.FindEnoughOutputs(from)
+	if findmount<mount{
+		fmt.Printf("SEND NOT ENOUGH money")
+	}
 	tr:=Transaction{nil,ins,outs}
 	tr.SetId()
 	fmt.Printf("sendcoin from=%s,to=%s,mount=%d\n", from, to, mount)
+	return true
+}
+func (bl *Blockchain)FindEnoughOutputs(from string)([]Output,int){
+
 }

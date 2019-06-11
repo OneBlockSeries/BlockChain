@@ -32,7 +32,7 @@ func CreateWallet() *Wallet {
 	wallet := Wallet{pri, pub}
 	return &wallet
 }
-func (w Wallet) CreateAddress() []byte {
+func (w Wallet) GetBase58Address() []byte {
 	//地址=版本号+两次公钥哈希 PIPEMD160(SHA256(PubKey))+checksum(两次哈希公钥哈希结果sha256(sha256（pubkeyhash）)
 	//比特币地址=base58Encode(地址)
 
@@ -58,4 +58,11 @@ func (w Wallet) PubkeyTwicehash() []byte {
 	publicRIPEMD160 := RIPEMD160Hasher.Sum(nil)
 
 	return publicRIPEMD160
+}
+
+func IsTrueAddress(address string) bool{
+
+
+
+	return true   //真的就返回true
 }
