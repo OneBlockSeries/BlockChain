@@ -18,6 +18,7 @@ func StartBlockChain() (bl *Blockchain) {
 func (bl *Blockchain) Runing() {
 	fmt.Printf("blockchain running\n")
 	/*------加入到区块链-------*/
+
 	tr := Transaction{}
 	bl.AddBlockToChain([]*Transaction{&tr})
 
@@ -31,6 +32,7 @@ func GenesisBlock() *Block {
 	
 	GenesTransaction := Coinbase("to the fuck Genesis")
 	Genesisblock := CreatBlock([]*Transaction{GenesTransaction}, []byte{}) //没有prevhash 第一个块，当然没有前向块的哈希
+	
 	return Genesisblock
 }
 func (bl *Blockchain) AddBlockToChain(trans []*Transaction) {
@@ -51,13 +53,19 @@ func (bl *Blockchain) SendCoin(from, to string, mount int) bool{
 		return false
 	}
 
-	//两步走 step1,从区块链中找from 找出所有的未花费的输出， step2，封装输入以找出来的输出填 当然得证明是自己的钱
+	//两步走 step1,从区块链中找from 找出所有的未花费的输出， 
+	//step2，封装输入以找出来的输出填 当然得证明是自己的钱
 	//封装输出  不要忘记有找零情况
 
 	enoughOutput,findmount:=bl.FindEnoughOutputs(from)
 	if findmount<mount{
-		fmt.Printf("SEND NOT ENOUGH money")
+		fmt.Printf("SEND NOT ENOUGH money,%d",enoughOutput)
+		return false
 	}
+
+	//1.证明是自己的钱，解锁输出，封装输入，2.封装输出，考虑找零情况
+
+
 	tr:=Transaction{nil,ins,outs}
 	tr.SetId()
 	fmt.Printf("sendcoin from=%s,to=%s,mount=%d\n", from, to, mount)
@@ -65,4 +73,6 @@ func (bl *Blockchain) SendCoin(from, to string, mount int) bool{
 }
 func (bl *Blockchain)FindEnoughOutputs(from string)([]Output,int){
 
+	//从区块链中迭代找出住够多的钱
+	return []Output{},1;
 }

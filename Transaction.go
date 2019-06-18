@@ -56,7 +56,8 @@ func (tr *Transaction) SetId() {
 func Coinbase(to string) *Transaction {
 	fmt.Printf("coninbase\n")
 	input := Input{}
-	output := Output{rewardcoin, to}
+	tobyte:=[]byte{}; //to descode to []byte
+	output := Output{rewardcoin, tobyte}
 	tran := Transaction{nil, []Input{input}, []Output{output}} //nil 不需要引用之前的输出，
 	tran.SetId()
 	return &tran

@@ -12,7 +12,7 @@ type BlockHead struct {
 	timestamp int64  //创建时间
 	prevhash  []byte //前一个区块的哈希值
 	hash      []byte //该block的hash值
-	nonce     int     //pow 用到，神奇数字
+	nonce     int64     //pow 用到，神奇数字
 	merkleRoot  []byte  //merkle tree root ,也就是所有交易哈希根
 }
 type Block struct {
@@ -22,7 +22,7 @@ type Block struct {
 
 func CreatBlock(trans []*Transaction, prevh []byte) (bl *Block) {
 
-	head := BlockHead{time.Now().Unix(), prevh, []byte{}}
+	head := BlockHead{time.Now().Unix(), prevh, []byte{},0,[]byte{}}
 
 	bl = &Block{
 		TransactionS: trans,
@@ -34,6 +34,15 @@ func CreatBlock(trans []*Transaction, prevh []byte) (bl *Block) {
 
 	//bl:=&Block{message,head}
 	bl.SetHash()
+	
+	//加入pow后的改动
+	pow:=CreateProofOfWork(bl)
+	nonce,hash:=pow.PowRun()
+	bl.bhead.hash=hash[:]
+	bl.bhead.nonce=nonce
+
+	//
+
 	return bl
 }
 func (b *Block) SetHash() {
