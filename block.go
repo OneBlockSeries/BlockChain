@@ -12,7 +12,8 @@ type BlockHead struct {
 	timestamp int64  //创建时间
 	prevhash  []byte //前一个区块的哈希值
 	hash      []byte //该block的hash值
-
+	nonce     int     //pow 用到，神奇数字
+	merkleRoot  []byte  //merkle tree root ,也就是所有交易哈希根
 }
 type Block struct {
 	TransactionS []*Transaction //交易
