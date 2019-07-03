@@ -60,7 +60,7 @@ func (w Wallet) PubkeyTwicehash() []byte {
 	return publicRIPEMD160
 }
 
-func IsTrueAddress(address string) bool{
+func IsTrueAddress(address []byte) bool{
 
 
 

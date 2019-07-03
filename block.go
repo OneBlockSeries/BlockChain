@@ -19,7 +19,22 @@ type Block struct {
 	TransactionS []*Transaction //交易
 	bhead        BlockHead
 }
+func CreateGenesisBlock(trans []*Transaction) (bl *Block){
 
+	head := BlockHead{time.Now().Unix(), []byte{}, []byte{},0,[]byte{}}
+
+	bl = &Block{
+		TransactionS: trans,
+
+		bhead: BlockHead{
+			timestamp: head.timestamp,
+			prevhash:  head.prevhash[:],
+			hash:      head.hash[:]}}
+
+	
+	bl.SetHash()
+	return bl
+}
 func CreatBlock(trans []*Transaction, prevh []byte) (bl *Block) {
 
 	head := BlockHead{time.Now().Unix(), prevh, []byte{},0,[]byte{}}
@@ -32,9 +47,17 @@ func CreatBlock(trans []*Transaction, prevh []byte) (bl *Block) {
 			prevhash:  head.prevhash[:],
 			hash:      head.hash[:]}}
 
-	//bl:=&Block{message,head}
+	
 	bl.SetHash()
 	
+	//merkle tree 
+	var tranS [][]byte
+	for _,tran:=range bl.TransactionS{
+		tranS=append(tranS,tran.Serialize())
+	}
+	merkleroot:=CreateMerkleTree(tranS)
+	bl.bhead.merkleRoot=merkleroot.Root.Data;
+
 	//加入pow后的改动
 	pow:=CreateProofOfWork(bl)
 	nonce,hash:=pow.PowRun()
