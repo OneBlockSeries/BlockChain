@@ -8,9 +8,9 @@ type Blockchain struct {
 	blocks []*Block
 }
 
-func StartBlockChain() (bl *Blockchain) {
+func StartBlockChain(genesisAddress []byte) (bl *Blockchain) {
 
-	b := GenesisBlock()
+	b := GenesisBlock(genesisAddress)
 	fmt.Printf("startblock=%x\n", b.bhead.hash)
 	return &Blockchain{[]*Block{b}}
 }
@@ -27,10 +27,10 @@ func (bl *Blockchain) Runing() {
 		fmt.Printf("%d,block,hash=%x\n", idx, value.bhead.hash)
 	}
 }
-func GenesisBlock() *Block {
+func GenesisBlock(genesisAddress []byte) *Block {
 	//message:="Genesis block"
-	
-	GenesTransaction := Coinbase("to the fuck Genesis")
+
+	GenesTransaction := Coinbase(genesisAddress)
 	Genesisblock := CreatBlock([]*Transaction{GenesTransaction}, []byte{}) //没有prevhash 第一个块，当然没有前向块的哈希
 	
 	return Genesisblock

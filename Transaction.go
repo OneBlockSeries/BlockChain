@@ -51,13 +51,12 @@ func (tr *Transaction) SetId() {
 	fmt.Printf("the transaction hash=%x\n",tr.Id)
 }
 
-/* coinbase交易，挖矿奖励，创世快奖励，没有输入input,只有输出output   */
+/* coinbase交易，特殊交易，挖矿奖励，创世快奖励，没有输入input,只有输出output   */
 
-func Coinbase(to string) *Transaction {
+func Coinbase(to []byte) *Transaction {
 	fmt.Printf("coninbase\n")
 	input := Input{}
-	tobyte:=[]byte{}; //to descode to []byte
-	output := Output{rewardcoin, tobyte}
+	output := Output{rewardcoin, to}
 	tran := Transaction{nil, []Input{input}, []Output{output}} //nil 不需要引用之前的输出，
 	tran.SetId()
 	return &tran
