@@ -19,14 +19,34 @@ type Input struct {
 	Pubkey  []byte		//没有哈希的pubkey ,
 	Signature []byte	//整个交易的一个签名
 }
-
 //输出  币存储地方
 type Output struct {
 	Value int
 	Pubkeyhash   []byte //哈希过的  RIPEMD16(SHA256(PubKey))
 }
+func (in *Input)UsesKey(pubkeyhash []byte) bool{
+	lockingHash:=PubkeyTwicehash(in.Pubkey)
+	return bytes.Compare(lockingHash,pubkeyhash)==0
+}
+func (out *Output)Lock(address []byte){
+	base58decode:=Base58Decode(address)
+	pubkeyhash:=base58decode[1:len(base58decode)-4]
+	out.Pubkeyhash=pubkeyhash
+	//return out.Pubkeyhash==unlockingData
+}
 
+func (out *Output) IsLocked(pubkeyhash []byte) bool{
+	return bytes.Compare(out.Pubkeyhash,pubkeyhash)==0
+}
+func (out *Output) CanbeUnlockWith(address []byte)bool{
+	return true
+}
+func (out *Output)CanBeUnlock(address []byte)bool{
+	return true
+}
+///func AddressToPubkeyhash(address []byte)[]byte{
 
+//}
 /*--一笔交易就是包括一个多个输入和一个或多个输出打包成成一个Transaction,然后被挖矿挖出加入到区块链中---*/
 type Transaction struct {
 	Id   []byte
@@ -71,4 +91,16 @@ func (tx Transaction) Serialize() []byte {
 	}
 
 	return encoded.Bytes()
+}
+/* //数据签名
+func (tx *Transaction) Sign(privkey ecdsa.PrivateKey,prevTrans map[string]Transaction){
+	if tx.isCoinbase(){
+		return
+	}
+
+}
+*/
+func (tx *Transaction)isCoinbase()bool{
+
+	return false
 }

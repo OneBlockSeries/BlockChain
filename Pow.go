@@ -64,6 +64,7 @@ func (pow *ProofOfWork) PowRun() (returnnonce int64, returnhash []byte) {
 		if hashInt.Cmp(pow.target) == -1 {
 			break
 		} else {
+			fmt.Printf("powrun nonce=%d\n",nonce)
 			nonce++
 		}
 	}

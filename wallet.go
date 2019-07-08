@@ -36,7 +36,7 @@ func (w Wallet) GetBase58Address() []byte {
 	//地址=版本号+两次公钥哈希 PIPEMD160(SHA256(PubKey))+checksum(两次哈希公钥哈希结果sha256(sha256（pubkeyhash）)
 	//比特币地址=base58Encode(地址)
 
-	pubkeyhash := w.PubkeyTwicehash()
+	pubkeyhash := PubkeyTwicehash(w.PublicKey)
 	temp := append([]byte{version}, pubkeyhash...)
 
 	checksumtemp1 := sha256.Sum256(temp)
@@ -46,9 +46,9 @@ func (w Wallet) GetBase58Address() []byte {
 	bitaddress := Base58Encode(address)
 	return bitaddress
 }
-func (w Wallet) PubkeyTwicehash() []byte {
+func PubkeyTwicehash(publickey []byte) []byte {
 
-	publicSHA256 := sha256.Sum256(w.PublicKey)
+	publicSHA256 := sha256.Sum256(publickey)
 
 	RIPEMD160Hasher := ripemd160.New()
 	_, err := RIPEMD160Hasher.Write(publicSHA256[:])
