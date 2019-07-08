@@ -34,7 +34,10 @@ func (out *Output)Lock(address []byte){
 	out.Pubkeyhash=pubkeyhash
 	//return out.Pubkeyhash==unlockingData
 }
-
+func (in *Input)CanUnlockOutput(address []byte)bool{
+	
+	return true;
+}
 func (out *Output) IsLocked(pubkeyhash []byte) bool{
 	return bytes.Compare(out.Pubkeyhash,pubkeyhash)==0
 }

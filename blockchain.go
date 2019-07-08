@@ -51,7 +51,7 @@ func (bl *Blockchain) SendCoin(from, to []byte, mount int, w *Wallet) *Transacti
 		fmt.Printf("sendcoin  wrong address\n")
 		return nil
 	}
-	fmt.Printf("%s SendCoin to %s %d coin\n", from, to, mount)
+	//fmt.Printf("%s SendCoin to %s %d coin\n", from, to, mount)
 	//两步走 step1,从区块链中找from 找出所有的未花费的输出，
 	//step2，封装输入以找出来的输出填 当然得证明是自己的钱
 	//封装输出  不要忘记有找零情况
@@ -111,51 +111,49 @@ Work:
 	return unspendOutputs, sum
 }
 func (bl *Blockchain) FindUnspentTransactions(address []byte) []*Transaction {
-	var unspentTran []*Transaction
-	var spentTxos map[string]int
+	var unspentTranS []*Transaction
+	
+	spentTxos := make(map[string][]int)
 
-	spentTxos = make(map[string]int)
+	//从尾到头遍历，，如找到合适的Output ，还要验证是否已经花费掉
+	lenth:=len(bl.blocks)-1
+	for ;lenth>0;lenth--{
 
-	//从头到尾遍历，，如找到合适的Output ，还要验证是否已经花费掉
-	/*
-		for _,bloc:=range bl.blocks{
+		//循环block里的每一个transaction
+		for _,tx:=range bl.blocks[lenth].TransactionS{
 
-			for _,transaction:=range bloc.TransactionS{
-				txid:=transaction.Id //[]byte  tranaction 哈希
+			//把txid转换成string
+			txid:=BytesToString(tx.Id)
 
-				//找到花费掉的
-				if(tranaction.isCoinbase()==false){
-					//正常transaction  ,非coinbase,coinbase没有输入
-					for _,in:=range tranaction.Ins{
-						//if in.UsesKey(pubkeyhash){
-							spentTxos[in.Id]=append(spentTxos[in.Id],in.OutId)
+		Outputs:
+			//循环 transaction 里的输出 OUTPUT
+			for outidx,out:=range tx.Outs{
+				//out 是否被消费国
+				if spentTxos[txid]!=nil{
+					for _,spentout:=range spentTxos[txid]{
+						if spentout==outidx{
+							continue Outputs
 						}
 					}
 				}
+
+				if out.CanbeUnlockWith(address){
+					unspentTranS=append(unspentTranS,tx)
+				}
 			}
-		}
-	*/
-	//找到未花费的
-	
-		//var block2 *Block
-		for _,blook:=range bl.blocks {
-
-			for _, transaction2 := range blook.TransactionS {
-				txid := transaction2.Id //[]byte  tranaction 哈希
-
-				for outidx, out := range transaction2.Outs {
-					if spentTxos[BytesToString(txid)] == outidx {
-						break
-					}
-
-					if out.CanBeUnlock(address) {
-						unspentTran = append(unspentTran, transaction2)
+			//循环transaction 里面的INPUT,,找出引用之前的输出
+			if tx.isCoinbase()==false{
+				for _,in:=range tx.Ins{
+					if in.CanUnlockOutput(address){
+						intxid:=BytesToString(in.Id)
+						spentTxos[intxid]=append(spentTxos[intxid],in.OutId)
 					}
 				}
-
 			}
-		}
-	
 
-	return unspentTran
+		} //transaction 循环
+
+	}
+	
+	return unspentTranS
 }
