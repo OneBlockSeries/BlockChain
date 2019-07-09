@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"bytes"
+	"crypto/ecdsa"
+	"errors"
 )
 
 type Blockchain struct {
@@ -37,6 +41,15 @@ func GenesisBlock(genesisAddress []byte) *Block {
 func (bl *Blockchain) AddBlockToChain(trans []*Transaction) {
 
 	block := CreatBlock(trans, bl.blocks[len(bl.blocks)-1].bhead.hash)
+	//验证区块里的transaction引用是否合法
+	for _,tx:=range block.TransactionS{
+		if bl.VerifyTransaction(tx)!=true{
+			log.Panic("error;verifly invalid transaction")
+		}
+	}
+
+
+
 	bl.blocks = append(bl.blocks, block)
 }
 
@@ -83,6 +96,9 @@ func (bl *Blockchain) SendCoin(from, to []byte, mount int, w *Wallet) *Transacti
 
 	tr := Transaction{nil, ins, outs}
 	tr.SetId()
+	//签名
+	bl.SignTransaction(&tr,w.PrivateKey);
+
 	fmt.Printf("sendcoin from=%s,to=%s,mount=%d\n", from, to, mount)
 	return &tr
 }
@@ -156,4 +172,39 @@ func (bl *Blockchain) FindUnspentTransactions(address []byte) []*Transaction {
 	}
 	
 	return unspentTranS
+}
+func (bc *Blockchain) FindTransacion(ID []byte)(*Transaction,error){
+
+	lenth:=len(bc.blocks)-1
+	for ;lenth>0;lenth--{
+		
+		for _,tx:=range bc.blocks[lenth].TransactionS{
+			if bytes.Compare(tx.Id,ID)==0{
+				return tx,nil
+			}
+		}
+	}
+	return &Transaction{},errors.New("Transaction is not find")
+
+}
+func (bc *Blockchain) SignTransaction(tx *Transaction,privkey ecdsa.PrivateKey){
+	prevTXs := make(map[string]*Transaction)
+
+	
+	for _,in:= range tx.Ins{
+		prevTX,_:=bc.FindTransacion(in.Id)
+		prevTXs[BytesToString(prevTX.Id)]=prevTX
+	}
+	
+	tx.Sign(privkey,prevTXs)
+
+}
+func (bc *Blockchain) VerifyTransaction(tx *Transaction)bool{
+	prevTXs := make(map[string]*Transaction)
+
+	for _,vin:=range tx.Ins{
+		prevTX,_:=bc.FindTransacion(vin.Id)
+		prevTXs[BytesToString(prevTX.Id)]=prevTX
+	}
+	return tx.Verify(prevTXs)
 }

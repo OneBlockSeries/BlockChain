@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+//	"log"
 )
 
 type BlockHead struct {
@@ -58,11 +59,11 @@ func CreatBlock(trans []*Transaction, prevh []byte) (bl *Block) {
 	merkleroot:=CreateMerkleTree(tranS)
 	bl.bhead.merkleRoot=merkleroot.Root.Data;
 
-	//加入pow后的改动
-	pow:=CreateProofOfWork(bl)
-	nonce,hash:=pow.PowRun()
-	bl.bhead.hash=hash[:]
-	bl.bhead.nonce=nonce
+		//加入pow后的改动
+		pow:=CreateProofOfWork(bl)
+		nonce,hash:=pow.PowRun()
+		bl.bhead.hash=hash[:]
+		bl.bhead.nonce=nonce
 
 	//
 

@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"crypto/ecdsa"
 	//"encoding/hex"
 	"fmt"
 	"log"
+	"crypto/elliptic"
+	"crypto/rand"
+	"math/big"
 )
 
 const rewardcoin = 50 //奖励钱
@@ -56,7 +60,18 @@ type Transaction struct {
 	Ins  []Input
 	Outs []Output
 }
-
+func (tr *Transaction) CopyPartTransaction() *Transaction{
+	var inputs []Input
+	var outputs []Output
+	for _,vin:=range tr.Ins{
+		inputs=append(inputs,Input{vin.Id,vin.OutId,nil,nil}) //pubkey 和signage设置为nil
+	}
+	for _,vout:=range tr.Outs{
+		outputs=append(outputs,Output{vout.Value,vout.Pubkeyhash})
+	}
+	txcopy:=&Transaction{tr.Id,inputs,outputs}
+	return txcopy
+}
 func (tr *Transaction) SetId() {
 	var encoded bytes.Buffer
 	var hash [32]byte
@@ -79,7 +94,8 @@ func (tr *Transaction) SetId() {
 func Coinbase(to []byte) *Transaction {
 	fmt.Printf("coninbase\n")
 	input := Input{}
-	output := Output{rewardcoin, to}
+	output := Output{rewardcoin, []byte{}}
+	output.Lock(to)
 	tran := Transaction{nil, []Input{input}, []Output{output}} //nil 不需要引用之前的输出，
 	tran.SetId()
 	return &tran
@@ -95,14 +111,67 @@ func (tx Transaction) Serialize() []byte {
 
 	return encoded.Bytes()
 }
-/* //数据签名
-func (tx *Transaction) Sign(privkey ecdsa.PrivateKey,prevTrans map[string]Transaction){
+ //数据签名
+func (tx *Transaction) Sign(privkey ecdsa.PrivateKey,prevTxs map[string]*Transaction){
+	//1.用于签名数据 引用的输出里的公钥哈希(发送方)+产生的新输出里的公钥哈希(接收方)+新的输出值
+	//2. 签名
 	if tx.isCoinbase(){
 		return
 	}
+	txCopy:=tx.CopyPartTransaction()
+	
+	for ID,vin:=range txCopy.Ins{
+
+		prevTx:=prevTxs[BytesToString(vin.Id)]  //之前引用的交易
+		txCopy.Ins[ID].Signature=nil   //重复，再次确认操作
+		txCopy.Ins[ID].Pubkey=prevTx.Outs[vin.OutId].Pubkeyhash //把引用输出里的pubkeyhash 调出来
+		txCopy.SetId()
+		txCopy.Ins[ID].Pubkey=nil   //重置，不影响下一个
+
+		r,s,_:=ecdsa.Sign(rand.Reader,&privkey,txCopy.Id)
+		sig:=append(r.Bytes(),s.Bytes()...)
+		tx.Ins[ID].Signature=sig
+
+		txCopy.Id=[]byte{} //重置下
+	}
 
 }
-*/
+//签名验证
+func (tx *Transaction)Verify(prevTxs map[string]*Transaction)bool{
+	//1.检查交易输入有权使用之前交易输出，存储的pubkey 哈希后与所引用输出哈希相匹配，保证了发送方只能花费自己的币
+	//2 签名是正确的，保证了交易由币的实际拥有者创建
+	txCopy := tx.CopyPartTransaction()
+    curve := elliptic.P256()
+
+    for inID, vin := range tx.Ins {
+        prevTx := prevTxs[BytesToString(vin.Id)]
+        txCopy.Ins[inID].Signature = nil
+        txCopy.Ins[inID].Pubkey = prevTx.Outs[vin.OutId].Pubkeyhash
+        txCopy.SetId()
+        txCopy.Ins[inID].Pubkey = nil
+
+        r := big.Int{}
+        s := big.Int{}
+        sigLen := len(vin.Signature)
+        r.SetBytes(vin.Signature[:(sigLen / 2)])
+        s.SetBytes(vin.Signature[(sigLen / 2):])
+
+        x := big.Int{}
+        y := big.Int{}
+        keyLen := len(vin.Pubkey)
+        x.SetBytes(vin.Pubkey[:(keyLen / 2)])
+        y.SetBytes(vin.Pubkey[(keyLen / 2):])
+
+        rawPubKey := ecdsa.PublicKey{curve, &x, &y}
+        if ecdsa.Verify(&rawPubKey, txCopy.Id, &r, &s) == false {
+            return false
+		}
+		txCopy.Id=[]byte{} //重置下
+    }
+	return true;
+}
+
+
 func (tx *Transaction)isCoinbase()bool{
 
 	return false
